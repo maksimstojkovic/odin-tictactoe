@@ -73,12 +73,68 @@ const GameController = () => {
     console.log(`${getActivePlayer().getName()}'s turn`);
   }
 
+  // 0 if game not over, 1 if draw, 2 if activePlayer won
+  const checkGameOver = () => {
+    const gameBoard = board.getBoard();
+
+    // Check rows
+    for (let i = 0; i < gameBoard.length; i++) {
+      if (gameBoard[i].reduce((allEqual, cell) => allEqual && cell.getValue() ===
+          activePlayer.getMarker(), true)) {
+            return 2;
+      }
+    }
+
+    // Check columns
+    for (let i = 0; i < gameBoard[0].length; i++) {
+      if (gameBoard.reduce((allEqual, row) => allEqual && row[i].getValue() ===
+          activePlayer.getMarker(), true)) {
+            return 2;
+      }
+    }
+
+    // Check diagonals
+    if (gameBoard.reduce((allEqual, row, index) => allEqual && row[index].getValue() ===
+        activePlayer.getMarker(), true)) {
+          return 2;
+    }
+
+    if (gameBoard.reduce((allEqual, row, index) => allEqual && row[gameBoard.length - index - 1].getValue() ===
+        activePlayer.getMarker(), true)) {
+          return 2;
+    }
+
+    // Check draw
+    const isDraw = gameBoard.reduce((boardFull, row) => {
+      return boardFull && row.every((cell) => cell.getValue() !== 0);
+    }, true)
+
+    if (isDraw) {
+      return 1;
+    }
+    return 0;
+  };
+
   const playRound = (row, col) => {
     if (!board.addMarker(row, col, activePlayer)) {
       return;
     }
 
     console.log(`Dropping ${activePlayer.getName()}'s token into row ${row}, column ${col}`);
+
+    // Check win conditions
+    const gameStatus = checkGameOver();
+
+    if (gameStatus === 2) {
+      board.printBoard();
+      console.log(`${activePlayer.getName()} wins`);
+      return;
+
+    } else if (gameStatus === 1) {
+      board.printBoard();
+      console.log('Draw');
+      return;
+    }
 
     switchPlayer();
     printNewRound();
