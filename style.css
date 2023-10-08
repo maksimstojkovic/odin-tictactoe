@@ -17,6 +17,54 @@
 
 .board {
   display: grid;
-  grid-template: repeat(3, 50px) / repeat(3, 50px);
-  gap: 10px;
+  grid-template: repeat(3, 100px) / repeat(3, 100px);
+  gap: 5px;
+  background-color: black;
+}
+
+.cell {
+  background-color: white;
+  border: none;
+  border-radius: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 5rem;
+}
+
+.cell:hover {
+  background-color: lightgray;
+}
+
+.controls {
+  margin-top: 20px;
+  display: flex;
+  gap: 20px;
+}
+
+.controls button {
+  color: white;
+  background-color: #0b5ed7;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  padding: 10px;
+}
+
+/* || MODAL */
+
+.name-modal form {
+  display: flex;
+  flex-direction: column;
+
+}
+
+.name-modal h2 {
+  margin: 0 0 10px 0;
+  padding: 0;
+}
+
+.name-modal input {
+  margin: 0 0 10px 0;
 }

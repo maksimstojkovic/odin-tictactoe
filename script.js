@@ -3,7 +3,11 @@ const Player = (name, id, marker) => {
   const getID = () => id;
   const getMarker = () => marker;
 
-  return {getName, getID, getMarker};
+  const setName = (newName) => {
+    name = newName;
+  }
+
+  return {getName, getID, getMarker, setName};
 }
 
 const Cell = () => {
@@ -28,13 +32,15 @@ const GameBoard = () => {
 
   // Create 2d board
   // Top-left corner has indices 0,0 => board[0][0]
-  for (let i = 0; i < rows; i++) {
-    board[i] = []
-
-    for (let j = 0; j < cols; j++) {
-      board[i][j] = Cell();
+  const resetBoard = () => {
+    for (let i = 0; i < rows; i++) {
+      board[i] = []
+  
+      for (let j = 0; j < cols; j++) {
+        board[i][j] = Cell();
+      }
     }
-  }
+  };
 
   const getBoard = () => board;
 
@@ -51,7 +57,9 @@ const GameBoard = () => {
     console.log(boardCellValues);
   }
 
-  return {getBoard, addMarker, printBoard};
+  resetBoard();
+
+  return {resetBoard, getBoard, addMarker, printBoard};
 };
 
 const GameController = () => {
@@ -60,8 +68,17 @@ const GameController = () => {
   players[1] = Player('Player 2', 2, 'O');
 
   const board = GameBoard();
-
   let activePlayer = players[0];
+
+  const resetGame = () => {
+    activePlayer = players[0];
+    board.resetBoard();
+  }
+
+  const setNames = (name1, name2) => {
+    players[0].setName(name1);
+    players[1].setName(name2);
+  }
 
   const getActivePlayer = () => activePlayer;
   const getPlayers = () => players;
@@ -145,13 +162,18 @@ const GameController = () => {
 
   printNewRound();
 
-  return {playRound, getActivePlayer, getPlayers, getBoard: board.getBoard};
+  return {setNames, playRound, getActivePlayer, getPlayers, getBoard: board.getBoard, resetGame};
 };
 
 const DisplayController = () => {
   const game = GameController();
   const turnDiv = document.querySelector('.turn');
   const boardDiv = document.querySelector('.board');
+  const resetButton = document.querySelector('.reset-game');
+  const nameButton = document.querySelector('.edit-names');
+  const nameModal = document.querySelector('.name-modal');
+  const nameForm = document.querySelector('.name-form');
+  const modalCancelButton = document.querySelector('.modal-cancel');
 
   const updateDisplay = (gameStatus) => {
     boardDiv.replaceChildren();
@@ -206,9 +228,29 @@ const DisplayController = () => {
     }
 
     updateDisplay(gameStatus);
-};
+  };
+
+  const clickHandlerResetGame = (e) => {
+    game.resetGame();
+    updateDisplay();
+  }
+
+  const editNames = (e) => {
+    console.log(e);
+    const inputs = e.target.elements;
+    game.setNames(inputs['player1-name'].value, inputs['player2-name'].value)
+    game.resetGame();
+    updateDisplay();
+    nameModal.close();
+  }
 
   boardDiv.addEventListener('click', clickHandlerBoard);
+  resetButton.addEventListener('click', clickHandlerResetGame);
+  
+  nameButton.addEventListener('click', () => nameModal.showModal());
+  nameForm.addEventListener('submit', editNames);
+  modalCancelButton.addEventListener('click', () => nameModal.close());
+
   updateDisplay();
 };
 
