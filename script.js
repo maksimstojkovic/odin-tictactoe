@@ -1,8 +1,9 @@
-const Player = (name, marker) => {
+const Player = (name, id, marker) => {
   const getName = () => name;
+  const getID = () => id;
   const getMarker = () => marker;
 
-  return {getName, getMarker};
+  return {getName, getID, getMarker};
 }
 
 const Cell = () => {
@@ -13,7 +14,7 @@ const Cell = () => {
 
   // Update current value of cell
   const setValue = (player) => {
-    value = player.getMarker();
+    value = player.getID();
   };
 
   return {getValue, setValue};
@@ -55,14 +56,15 @@ const GameBoard = () => {
 
 const GameController = () => {
   const players = [];
-  players[0] = Player('Player 1', 1);
-  players[1] = Player('Player 2', 2);
+  players[0] = Player('Player 1', 1, 'X');
+  players[1] = Player('Player 2', 2, 'O');
 
   const board = GameBoard();
 
   let activePlayer = players[0];
 
   const getActivePlayer = () => activePlayer;
+  const getPlayers = () => players;
 
   const switchPlayer = () => {
     activePlayer = activePlayer === players[0] ? players[1] : players[0];
@@ -80,7 +82,7 @@ const GameController = () => {
     // Check rows
     for (let i = 0; i < gameBoard.length; i++) {
       if (gameBoard[i].reduce((allEqual, cell) => allEqual && cell.getValue() ===
-          activePlayer.getMarker(), true)) {
+          activePlayer.getID(), true)) {
             return 2;
       }
     }
@@ -88,19 +90,19 @@ const GameController = () => {
     // Check columns
     for (let i = 0; i < gameBoard[0].length; i++) {
       if (gameBoard.reduce((allEqual, row) => allEqual && row[i].getValue() ===
-          activePlayer.getMarker(), true)) {
+          activePlayer.getID(), true)) {
             return 2;
       }
     }
 
     // Check diagonals
     if (gameBoard.reduce((allEqual, row, index) => allEqual && row[index].getValue() ===
-        activePlayer.getMarker(), true)) {
+        activePlayer.getID(), true)) {
           return 2;
     }
 
     if (gameBoard.reduce((allEqual, row, index) => allEqual && row[gameBoard.length - index - 1].getValue() ===
-        activePlayer.getMarker(), true)) {
+        activePlayer.getID(), true)) {
           return 2;
     }
 
@@ -128,21 +130,86 @@ const GameController = () => {
     if (gameStatus === 2) {
       board.printBoard();
       console.log(`${activePlayer.getName()} wins`);
-      return;
+      return gameStatus;
 
     } else if (gameStatus === 1) {
       board.printBoard();
       console.log('Draw');
-      return;
+      return gameStatus;
     }
 
     switchPlayer();
     printNewRound();
+    return gameStatus;
   };
 
   printNewRound();
 
-  return {playRound, getActivePlayer};
+  return {playRound, getActivePlayer, getPlayers, getBoard: board.getBoard};
 };
 
-const game = GameController();
+const DisplayController = () => {
+  const game = GameController();
+  const turnDiv = document.querySelector('.turn');
+  const boardDiv = document.querySelector('.board');
+
+  const updateDisplay = (gameStatus) => {
+    boardDiv.replaceChildren();
+
+    const board = game.getBoard();
+    const activePlayer = game.getActivePlayer();
+
+    if (gameStatus === 2) {
+      turnDiv.textContent = `${activePlayer.getName()} wins`;
+    } else if (gameStatus === 1) {
+      turnDiv.textContent = 'Draw';
+    } else {
+      turnDiv.textContent = `${activePlayer.getName()}'s turn`;
+    }
+
+    board.forEach((row, rowIndex) => {
+      row.forEach((cell, colIndex) => {
+        const cellButton = document.createElement('button');
+        cellButton.classList.add('cell');
+
+        cellButton.dataset.row = rowIndex;
+        cellButton.dataset.column = colIndex;
+
+        let cellText = '';
+
+        game.getPlayers().every((player) => {
+          if (cell.getValue() === player.getID()) {
+            cellText = player.getMarker();
+            return false;
+          }
+          return true;
+        });
+
+        cellButton.textContent = cellText;
+        boardDiv.appendChild(cellButton);
+      });
+    });
+  };
+
+  const clickHandlerBoard = (e) => {
+    const selectedRow = e.target.dataset.row;
+    const selectedCol = e.target.dataset.column;
+
+    if (!selectedRow || !selectedCol) {
+      return;
+    }
+
+    const gameStatus = game.playRound(parseInt(selectedRow), parseInt(selectedCol));
+    
+    if (gameStatus != 0) {
+      boardDiv.removeEventListener('click', clickHandlerBoard);
+    }
+
+    updateDisplay(gameStatus);
+};
+
+  boardDiv.addEventListener('click', clickHandlerBoard);
+  updateDisplay();
+};
+
+DisplayController();
