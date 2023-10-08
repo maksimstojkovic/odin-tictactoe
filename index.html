@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tic Tac Toe</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h2 class="turn"></h2>
+    <div class="board"></div>
+    <div class="controls">
+      <button class="edit-names">Edit Names</button>
+      <button class="reset-game">Reset Game</button>
+    </div>
+  </div>
+
+  <dialog class="name-modal">
+    <form action="javascript:void(0);" class="name-form">
+      <h2>Edit Names</h2>
+
+      <label for="player1-name">Player 1</label>
+      <input type="text" name="player1-name" id="player1-name">
+
+      <label for="player2-name">Player 2</label>
+      <input type="text" name="player-2-name" id="player2-name">
+
+      <div class="buttons">
+        <button type="submit" class="modal-submit">Submit</button>
+        <button type="button" class="modal-cancel">Cancel</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="script.js"></script>
+</body>
+</html>
