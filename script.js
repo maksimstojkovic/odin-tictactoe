@@ -119,7 +119,7 @@ const GameController = () => {
 
   const playRound = (row, col) => {
     if (!board.addMarker(row, col, activePlayer)) {
-      return;
+      return 0;
     }
 
     console.log(`Dropping ${activePlayer.getName()}'s token into row ${row}, column ${col}`);
